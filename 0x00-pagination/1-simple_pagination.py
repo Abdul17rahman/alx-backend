@@ -35,4 +35,14 @@ class Server:
         return self.__dataset
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
-        pass
+        """Returns a list of rows for the specified page and page size."""
+        assert isinstance(page, int) and page > 0, "Page must be positive."
+        assert isinstance(page_size, int) and page_size > 0, "Size Positive"
+
+        start_index, end_index = index_range(page, page_size)
+        dataset = self.dataset()
+
+        # Return the sliced data based on calculated start and end indices
+        if start_index >= len(dataset):
+            return []
+        return dataset[start_index:end_index]
