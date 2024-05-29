@@ -5,14 +5,7 @@ function to return a tuple with start and end index
 
 import csv
 import math
-from typing import List
-
-
-def index_range(page, page_size):
-    """ returns the start and end indices"""
-    start_index = (page - 1) * page_size
-    end_index = start_index + page_size
-    return (start_index, end_index)
+from typing import List, Dict
 
 
 class Server:
@@ -47,24 +40,42 @@ class Server:
             return []
         return dataset[start_index:end_index]
 
-    def get_hyper(self, page: int = 1, page_size: int = 10) -> dict:
-        """get a page list using page num and page_size"""
-        assert isinstance(page, int) and page > 0
+    def indexed_dataset(self) -> Dict[int, List]:
+        """Dataset indexed by sorting position, starting at 0"""
+        if self.__indexed_dataset is None:
+            dataset = self.dataset()
+            truncated_dataset = dataset[:1000]
+            self.__indexed_dataset = {i: dataset[i]
+                                      for i in range(len(dataset))}
+        return self.__indexed_dataset
+
+    def get_hyper_index(self, index: int = None, page_size: int = 10) -> Dict:
+        """
+        return a dictionary with the following key-value pairs:
+            index: the current start index of the return page
+            next_index: the next index to query with
+            page_size: the current page size
+            data: the actual page of the dataset
+        """
+        assert isinstance(index, int) and index >= 0
         assert isinstance(page_size, int) and page_size > 0
+        indexed_dataset = self.indexed_dataset()
+        indexed_dataset_count = len(indexed_dataset)
+        assert index < indexed_dataset_count
 
-        (start, end) = index_range(page, page_size)
-        data_set = self.dataset()
-        data = data_set[start:end]
+        next_index = index
 
-        total_pages = math.ceil(len(data_set) / page_size)
+        data = []
+        for _ in range(page_size):
+            while next_index not in indexed_dataset:
+                next_index += 1
+            data.append(indexed_dataset[next_index])
+            next_index += 1
         page_size = len(data)
-        next_page = None if page + 1 > total_pages else page + 1
-        prev_page = None if page - 1 == 0 else page - 1
+
         return {
+            "index": index,
+            "next_index": next_index,
             "page_size": page_size,
-            "page": page,
             "data": data,
-            "next_page": next_page,
-            "prev_page": prev_page,
-            "total_pages": total_pages,
         }
