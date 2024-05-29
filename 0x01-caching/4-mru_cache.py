@@ -16,17 +16,24 @@ class MRUCache(BaseCaching):
         This is intializing functionality from parent class
         """
         super().__init__()
-        self.cache_data = OrderedDict()
+        self.mru_keys = []
 
     def put(self, key, item):
         """
         Adds an item to the cache dict
         """
         if key is not None and item is not None:
-            if len(self.cache_data) >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
-                self.cache_data.popitem(last=True)
-                print("DISCARD: {}".format(key))
             self.cache_data[key] = item
+            if key in self.mru_keys:
+                self.mru_keys.remove(key)
+
+            if len(self.cache_data) > self.MAX_ITEMS:
+                rem = self.mru_keys.pop()
+                del self.cache_data[rem]
+                print("DISCARD: {}".format(rem))
+
+            self.mru_keys.append(key)
+
 
     def get(self, key):
         """
