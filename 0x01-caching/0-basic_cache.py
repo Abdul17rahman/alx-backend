@@ -7,8 +7,8 @@ from base_caching import BaseCaching
 
 
 class BasicCache(BaseCaching):
-    """
-    This is a basic cache inheriting from the BaseCaching
+    """ BaseCache implements:
+      - the put and get methods
     """
     def __init__(self):
         """
