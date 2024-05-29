@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 class MRUCache(BaseCaching):
     """ MRUCache implements:
-      - the put and get methods as least recently used
+      - the put and get methods as most recently used
     """
     def __init__(self):
         """
@@ -23,11 +23,9 @@ class MRUCache(BaseCaching):
         Adds an item to the cache dict
         """
         if key is not None and item is not None:
-            if key in self.cache_data:
-                self.cache_data.pop(key)
-            elif len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                mru, _ = self.cache_data.popitem(last=True)
-                print("DISCARD: {}".format(mru))
+            if len(self.cache_data) >= BaseCaching.MAX_ITEMS and key not in self.cache_data:
+                self.cache_data.popitem(last=True)
+                print("DISCARD: {}".format(key))
             self.cache_data[key] = item
 
     def get(self, key):
