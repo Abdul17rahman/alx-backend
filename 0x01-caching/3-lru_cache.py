@@ -1,39 +1,33 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """
 LRUCache module
 """
 
-from base_caching import BaseCaching
-from collections import OrderedDict
+BaseCaching = __import__("base_caching").BaseCaching
 
 
 class LRUCache(BaseCaching):
-    """ LRUCache implements:
-      - the put and get methods as least recently used
-    """
+    """LRUCache class"""
+
     def __init__(self):
-        """
-        This is intializing functionality from parent class
-        """
         super().__init__()
-        self.cache_data = OrderedDict()
+        self._lru_keys = []
 
     def put(self, key, item):
-        """
-        Adds an item to the cache dict
-        """
+        """Add an item in the cache"""
         if key is not None and item is not None:
-            if key in self.cache_data:
-                self.cache_data.pop(key)
-            elif len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                lru, _ = self.cache_data.popitem(last=False)
-                print("DISCARD: {}".format(lru))
             self.cache_data[key] = item
+            if key in self._lru_keys:
+                self._lru_keys.remove(key)
+            self._lru_keys.append(key)
+            if len(self.cache_data) > self.MAX_ITEMS:
+                removed_key = self._lru_keys.pop(0)
+                del self.cache_data[removed_key]
+                print(f"DISCARD: {removed_key}")
 
     def get(self, key):
-        """
-        Retrives the item
-        """
-        if key is None or key not in self.cache_data:
-            return None
-        return self.cache_data.get(key)
+        """Get an item by key"""
+        if key in self.cache_data.keys():
+            self._lru_keys.pop(self._lru_keys.index(key))
+            self._lru_keys.append(key)
+        return self.cache_data.get(key, None)
