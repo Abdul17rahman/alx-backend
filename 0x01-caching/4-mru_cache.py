@@ -4,19 +4,17 @@ MRUCache module
 """
 
 from base_caching import BaseCaching
-from collections import OrderedDict
 
 
 class MRUCache(BaseCaching):
     """ MRUCache implements:
-      - the put and get methods as most recently used
+      - the put and get methods as last-in first-out
     """
     def __init__(self):
         """
         This is intializing functionality from parent class
         """
         super().__init__()
-        self.cache_data = OrderedDict()
 
     def put(self, key, item):
         """
@@ -24,11 +22,11 @@ class MRUCache(BaseCaching):
         """
         if key is not None and item is not None:
             if key in self.cache_data:
-                self.cache_data.move_to_end(key)
-            self.cache_data[key] = item
+                self.cache_data[key] = self.cache_data.pop(key)
             if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                mru, _ = self.cache_data.popitem(last=True)
-                print("DISCARD: {}".format(mru))
+                itm, _ = self.cache_data.popitem()
+                print("DISCARD: {}".format(itm))
+            self.cache_data[key] = item
 
     def get(self, key):
         """
