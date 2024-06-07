@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """ Basic flask app module"""
 
 
@@ -10,6 +9,7 @@ app = Flask(__name__, template_folder="./templates")
 
 @app.route('/')
 def index():
+    """ Returns hello world"""
     return render_template('0-index.html')
 
 
